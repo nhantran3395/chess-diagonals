@@ -3,55 +3,45 @@ export default {
 	highlight
 };
 
-let tiles;
+let diagonals = [];
+let map = new Map();
+let highlighted = [];
 
-function draw(boardEl) {
-	for (let i = 0; i < 8; i++) {
-		const row = document.createElement("div");
-		row.dataset.rowIdx = i;
-		drawTiles(row);
-		boardEl.append(row);
+// prepare board presentations
+// set up empty array for 15 major diagonals and 15 minor diagonals
+function prep() {
+	for (let i = 0; i < 30; i++) {
+		diagonals.push([]);
 	}
-
-	tiles = boardEl.querySelectorAll("div > div");
 }
 
-function drawTiles(rowEl) {
-	for (let i = 0; i < 8; i++) {
-		const tile = document.createElement("div");
-		tile.dataset.colIdx = i;
-		rowEl.append(tile);
+function draw(boardEl) {
+	prep();
+
+	for (let i = 0; i < 8; i++){
+		const row = document.createElement("div");
+
+		for (let j = 0; j < 8; j++){
+			const tile = document.createElement("div");
+			row.append(tile);
+
+			const majorDiagonalIdx = 7 - (i - j);
+			const minorDiagonalIdx = 15 + (i + j);
+
+			diagonals[majorDiagonalIdx].push(tile);
+			diagonals[minorDiagonalIdx].push(tile);
+
+			map.set(tile, [diagonals[majorDiagonalIdx],diagonals[minorDiagonalIdx]]);
+		}
+
+		boardEl.append(row);
 	}
 }
 
 function highlight(tileEl) {
-	tiles.forEach(node => node.classList.remove('highlighted'));
-	tileEl.classList.add('highlighted');
+	highlighted.forEach(tile => tile.classList.remove("highlighted"));
 
-	const tileRowIdx = Number(tileEl.parentNode.dataset.rowIdx);
-	const tileColIdx = Number(tileEl.dataset.colIdx);
-
-	for (let i = tileRowIdx, j = tileColIdx; i >= 0 && j >= 0; i--, j--){
-		findTile(i, j).classList.add('highlighted');
-	}
-
-	for (let i = tileRowIdx, j = tileColIdx; i < 8 && j >= 0; i++, j--){
-		findTile(i, j).classList.add('highlighted');
-	}
-
-	for (let i = tileRowIdx, j = tileColIdx; i >= 0 && j < 8; i--, j++){
-		findTile(i, j).classList.add('highlighted');
-	}
-
-	for (let i = tileRowIdx, j = tileColIdx; i < 8 && j < 8; i++, j++){
-		findTile(i, j).classList.add('highlighted');
-	}
-}
-
-function findTile(rowIdx, colIdx) {
-	for (let tile of tiles) {
-		if (Number(tile.parentNode.dataset.rowIdx) === rowIdx && Number(tile.dataset.colIdx) === colIdx){
-			return tile;
-		}
-	}
+	const [majorDiagonal, minorDiagonal] = map.get(tileEl);
+	highlighted = [...majorDiagonal, ...minorDiagonal];
+	highlighted.forEach(tile => tile.classList.add("highlighted"));
 }
