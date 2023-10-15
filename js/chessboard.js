@@ -3,18 +3,55 @@ export default {
 	highlight
 };
 
-
-// ****************************
+let tiles;
 
 function draw(boardEl) {
-	// TODO: draw the chessboard, 8 rows (divs)
-	// of 8 tiles (divs) each, inserting all DOM
-	// elements into `boardEl` div
+	for (let i = 0; i < 8; i++) {
+		const row = document.createElement("div");
+		row.dataset.rowIdx = i;
+		drawTiles(row);
+		boardEl.append(row);
+	}
+
+	tiles = boardEl.querySelectorAll("div > div");
+}
+
+function drawTiles(rowEl) {
+	for (let i = 0; i < 8; i++) {
+		const tile = document.createElement("div");
+		tile.dataset.colIdx = i;
+		rowEl.append(tile);
+	}
 }
 
 function highlight(tileEl) {
-	// TODO: clear previous highlights (if any) and
-	// then find the tiles in the two diagonals
-	// (major and minor) that `tileEl` belongs to,
-	// to highlight them via CSS class "highlighted"
+	tiles.forEach(node => node.classList.remove('highlighted'));
+	tileEl.classList.add('highlighted');
+
+	const tileRowIdx = Number(tileEl.parentNode.dataset.rowIdx);
+	const tileColIdx = Number(tileEl.dataset.colIdx);
+
+	for (let i = tileRowIdx, j = tileColIdx; i >= 0 && j >= 0; i--, j--){
+		findTile(i, j).classList.add('highlighted');
+	}
+
+	for (let i = tileRowIdx, j = tileColIdx; i < 8 && j >= 0; i++, j--){
+		findTile(i, j).classList.add('highlighted');
+	}
+
+	for (let i = tileRowIdx, j = tileColIdx; i >= 0 && j < 8; i--, j++){
+		findTile(i, j).classList.add('highlighted');
+	}
+
+	for (let i = tileRowIdx, j = tileColIdx; i < 8 && j < 8; i++, j++){
+		findTile(i, j).classList.add('highlighted');
+	}
+}
+
+function findTile(rowIdx, colIdx) {
+	for (let tile of tiles) {
+		if (Number(tile.parentNode.dataset.rowIdx) === rowIdx && Number(tile.dataset.colIdx) === colIdx){
+			return tile;
+		}
+	}
 }
